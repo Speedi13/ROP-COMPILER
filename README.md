@@ -9,13 +9,15 @@ The Wikipedia article about it describes it best:
 
 https://en.wikipedia.org/wiki/Return-oriented_programming
 
+The TL;DR is that return-oriented programming (ROP) is a commonly used technique in exploitation to gain code execution<br />
+
 look below at [Compiler output](https://github.com/Speedi13/ROP-COMPILER/blob/master/README.md#compiler-output)
 
 # Why ROP
 CSGO is protected by Valve Anti-Cheat (short VAC)<br />
 BF3 and BF4 are protected by PunkBuster (short PB)<br />
 ROP should be very difficult to detect for these Anti-Cheats for the following reasons<br />
-- The cheats program code consists of a list of memory addresses that change with each game and computer restart
+- The cheats program code consists of a list of volatile memory addresses that change with each game and computer restart
 - Afaik VAC prefers to analyze memory pages that are marked as executable but for ROP the list of return-addresses doesn't require to be on an executable memory page. 
 - Additionally the ROP-Compiler supports the option of inserting random padding into the ROP-chain.
 <br />
