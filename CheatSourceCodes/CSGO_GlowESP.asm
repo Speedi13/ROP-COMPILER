@@ -130,10 +130,10 @@ add eax, 4
 add eax, 4
 add eax, 4
 ;GlowObject->m_bRenderWhenOccluded = 1
-;GlowObject->m_bRenderWhenUnoccluded = 1
+;GlowObject->m_bRenderWhenUnoccluded = 0
 ;GlowObject->m_bFullBloom = 0
 ;=> 0x00000101
-mov ebx, 0x00000101
+mov ebx, 0x00000001
 mov DWORD PTR[eax], ebx
 
 @l_skip:
