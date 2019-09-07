@@ -28,7 +28,7 @@ l_Start:
 					*(DWORD*)( GlowObject + 0x08 ) = 0x0;//GlowObject->m_flGreen = 0.0f
 					*(DWORD*)( GlowObject + 0x0C ) = 0x0;//GlowObject->m_flBlue = 0.0f
 					*(DWORD*)( GlowObject + 0x10 ) = 0x3F800000;//GlowObject->m_flAlpha = 1.0f [1.0f => 0x3F800000]
-					*(DWORD*)( GlowObject + 0x24 ) = 0x00000101;
+					*(DWORD*)( GlowObject + 0x24 ) = 0x00000001;
 				}
 			}
 		}
