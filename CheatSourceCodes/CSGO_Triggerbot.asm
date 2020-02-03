@@ -37,7 +37,7 @@ mov eax, 0x0
 mov VR2, eax;//VR2 => 0
 
 @l_MainLoop:;//EAX => Triggerbot key:
-mov eax,0x6;//-> VK_XBUTTON2
+mov eax,0x06;//-> VK_XBUTTON2
 ;//https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 mov VR9, eax;
 
