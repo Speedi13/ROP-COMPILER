@@ -39,6 +39,17 @@ int __cdecl main( /*IN*/ const int argc, /*IN*/ const CHAR* argv[])
 	if ( g_HardwareRngSupported_RDSEED == true )
 		printf("[+] Hardware RDSEED supported\n");
 
+	if ( g_HardwareRngSupported_RDRND == true || g_HardwareRngSupported_RDSEED == true )
+	{
+		//check if hardware random number generator is bugged.
+		//Some CPUs always return the same for some reason.
+		if ( g_RandomGenerator.checkHardwareRNG() == false )
+		{
+			g_HardwareRngSupported_RDRND = false;
+			g_HardwareRngSupported_RDSEED = false;
+		}
+	}
+	
 	g_RandomGenerator.Initialize();
 
 	char RandomAsciiText[64] = {};
