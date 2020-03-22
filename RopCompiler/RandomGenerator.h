@@ -24,6 +24,7 @@ struct RandomGenerator
 	void LCG_randBuffer( /*IN OUT*/ void* Address, /*IN*/ DWORD Size );
 	/////////////////////////////////////////////////////////////////////////
 
+	bool checkHardwareRNG( void );
 };
 extern RandomGenerator g_RandomGenerator;
 
