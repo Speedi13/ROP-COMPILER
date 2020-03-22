@@ -270,6 +270,8 @@ BYTE RandomGenerator::GetByte( void )
         HardwareGeneratedRandomNumber = HardwareGeneratedRandomNumber % 256;
         if ( Success == TRUE ) 
             return (BYTE)( HardwareGeneratedRandomNumber & 0xFF );
+		else
+			 printf("[%s] _rdrand16_step failed!\n", __FUNCTION__);
     }
 
     BYTE RandomValue = (BYTE)( (int)( this->LCG_rand() % 256 ) & 0xFF );
@@ -304,6 +306,8 @@ WORD RandomGenerator::GetWord( void )
         const int Success = _rdrand16_step( &HardwareGeneratedRandomNumber );
         if ( Success == TRUE ) 
             return HardwareGeneratedRandomNumber;
+		else
+			printf("[%s] _rdrand16_step failed!\n", __FUNCTION__);
     }
 
     WORD RandomValue = NULL;
@@ -340,6 +344,8 @@ DWORD RandomGenerator::GetDword( void )
         const int Success = _rdrand32_step( &HardwareGeneratedRandomNumber );
         if ( Success == TRUE ) 
             return HardwareGeneratedRandomNumber;
+		else
+			printf("[%s] _rdrand32_step failed!\n", __FUNCTION__);
     }
 
     
@@ -381,6 +387,8 @@ DWORD64 RandomGenerator::GetQword( void )
         const int Success = _rdrand64_step( &HardwareGeneratedRandomNumber );
         if ( Success == TRUE ) 
             return HardwareGeneratedRandomNumber;
+		else
+			printf("[%s] _rdrand64_step failed!\n", __FUNCTION__);
     }
 #else
     if ( g_HardwareRngSupported_RDRND == true )
@@ -392,6 +400,8 @@ DWORD64 RandomGenerator::GetQword( void )
 
         if ( Success == (int)( (int)TRUE + (int)TRUE ) )
             return (DWORD64)( Dwords[0] ) | (DWORD64)( (DWORD64)( Dwords[1] ) << 32 );
+		else
+			printf("[%s] _rdrand32_step failed!\n", __FUNCTION__);
     }
 #endif
 
@@ -460,6 +470,7 @@ void RandomGenerator::GetBuffer( /*IN OUT*/ void* Address, /*IN*/ DWORD Size )
         {
             if ( _rdrand32_step( &RandomNbr32 ) != TRUE )
             {
+				printf("[%s] _rdrand32_step [1] failed!\n", __FUNCTION__);
                 HWRNGSuccess = false;
                 break;
             }
@@ -472,6 +483,7 @@ void RandomGenerator::GetBuffer( /*IN OUT*/ void* Address, /*IN*/ DWORD Size )
             {
                 if ( _rdrand32_step( &RandomNbr32 ) != TRUE )
                 {
+					printf("[%s] _rdrand32_step [2] failed!\n", __FUNCTION__);
                     HWRNGSuccess = false;
                     break;
                 }
@@ -711,6 +723,8 @@ unsigned int RandomGenerator::GenerateRandomSeed( void )
         const int Success = _rdseed32_step( &HardwareGeneratedSeed );
         if ( Success == TRUE ) 
             cookie ^= HardwareGeneratedSeed;
+		else
+			printf("[%s] _rdseed32_step failed!\n", __FUNCTION__);
 #endif
     }
     else
@@ -721,6 +735,8 @@ unsigned int RandomGenerator::GenerateRandomSeed( void )
         const int Success = _rdrand32_step( &HardwareGeneratedRandomNumber );
         if ( Success == TRUE ) 
             cookie ^= HardwareGeneratedRandomNumber;
+		else
+			printf("[%s] _rdrand32_step failed!\n", __FUNCTION__);
     }
 
     return cookie;
@@ -790,4 +806,61 @@ void RandomGenerator::LCG_randBuffer( /*IN OUT*/ void* Address, /*IN*/ DWORD Siz
     for (int c1 = 0; c1 < 10; c1++)
         this->LCGState[c1] = Local_LCGState[c1];
     this->LCGGeneratorIndex = Index;
+}
+
+bool RandomGenerator::checkHardwareRNG( void )
+{
+	unsigned __int32 RdSeed32Cntr = 0;
+	unsigned __int32 RdSeed32Value = 0;
+
+	unsigned __int32 RdRand32Cntr = 0;
+	unsigned __int32 RdRand32Value = 0;
+	
+	//check if hardware random number generator is bugged.
+	//Some CPUs always return the same for some reason.
+
+	for (unsigned int i = 0; i < 32; i++)
+	{
+		if ( g_HardwareRngSupported_RDSEED == true )
+		{
+	#if _MSC_VER >= 1910
+			//https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-rdseed16-step-rdseed32-step-rdseed64-step
+			unsigned int HardwareGeneratedRandomNumber = NULL;
+			const int Success = _rdseed32_step( &HardwareGeneratedRandomNumber );
+			if ( Success == TRUE )
+			{
+				if ( i == 0 )
+					RdSeed32Value = HardwareGeneratedRandomNumber;
+				else
+				{
+					if ( RdSeed32Value == HardwareGeneratedRandomNumber )
+						RdSeed32Cntr += 1;
+				}
+			}
+	#endif
+		}
+
+		if ( g_HardwareRngSupported_RDRND == true )
+		{
+			//https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-rdrand16-step-rdrand32-step-rdrand64-step
+			unsigned int HardwareGeneratedRandomNumber = NULL;
+			const int Success = _rdrand32_step( &HardwareGeneratedRandomNumber );
+			if ( Success == TRUE )
+			{
+				if ( i == 0 )
+					RdRand32Value = HardwareGeneratedRandomNumber;
+				else
+				{
+					if ( RdRand32Value == HardwareGeneratedRandomNumber )
+						RdRand32Cntr += 1;
+				}
+			}
+
+		}
+	}
+	//if more than half of the values are the same, its bugged.
+	if ( RdRand32Cntr > 16 || RdSeed32Cntr > 16 )
+		return false;
+
+	return true;
 }
