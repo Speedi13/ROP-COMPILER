@@ -123,7 +123,8 @@ int __cdecl main( /*IN*/ const int argc, /*IN*/ const CHAR* argv[])
 		struct RemoteProcessModuleInfo ClientDllInfo = {};
 		ZeroMemory(&ClientDllInfo, sizeof(struct RemoteProcessModuleInfo) );
 
-		while ( GetRemoteProcessModuleInfo( ProcessId, L"client_panorama.dll", &ClientDllInfo ) != true )
+		while ( GetRemoteProcessModuleInfo( ProcessId, L"client_panorama.dll", &ClientDllInfo ) == false &&
+			GetRemoteProcessModuleInfo( ProcessId, L"client.dll",          &ClientDllInfo ) == false    )
 			Sleep( 3000 );
 	
 		if ( (DWORD_PTR)ClientDllInfo.modBaseAddr != (DWORD_PTR)ClientDllInfo.hModule )
